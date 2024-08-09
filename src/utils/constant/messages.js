@@ -13,5 +13,7 @@ const genrateMessage = (entity)=>({
 export const messages = {
     category:genrateMessage('category'),
     subcategory:genrateMessage('subcategory'),
+    Brand:genrateMessage('Brand'),
+    product:genrateMessage('product'),
     file:{required:'file is required'}
 }

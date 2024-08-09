@@ -19,7 +19,7 @@ const categorySchema = new Schema(
 
         },
         image: {
-            path: String
+            type:Object,
         },
         createdBy: {
             type: Schema.Types.ObjectId,
