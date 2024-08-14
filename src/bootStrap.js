@@ -1,4 +1,5 @@
 import { connectDB } from "../db/connection.js"
+import authRouter from "./modules/auth/auth.router.js"
 import brandRouter from "./modules/brand/brand.router.js"
 import categoryRouter from "./modules/category/category.router.js"
 import productRouter from "./modules/product/product.router.js"
@@ -16,5 +17,6 @@ export const bootStrap = (app, express) => {
     app.use('/sub-category', subCategoryRouter)
     app.use('/brand',brandRouter)
     app.use('/product',productRouter)
+    app.use('/auth',authRouter)
     app.use(globalErrorHandler)
 }

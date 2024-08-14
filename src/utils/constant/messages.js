@@ -9,8 +9,13 @@ const genrateMessage = (entity)=>({
     updateSuccessfully:`${entity} updated successfully`,
     deleteSuccessfully:`${entity} deleted successfully`,
     getsuccessfully:`${entity} retrieved successfully`,
+    verified:`${entity} verified successfully`,
+    notverified:`${entity} not verified`,
+    invalidCreadintials:`invalid creadintials`,
+    loginSuccessfully:`login successfully`,
 })
 export const messages = {
+    user:genrateMessage('user'),
     category:genrateMessage('category'),
     subcategory:genrateMessage('subcategory'),
     Brand:genrateMessage('Brand'),

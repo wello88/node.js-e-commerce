@@ -62,15 +62,15 @@ export const CreateCategoryCloud = async (req, res, next) => {
     }
     //prepare data
     const slug = slugify(name)
-    const {secure_url,public_id}=   await cloudinary.uploader.upload(req.file.path,
+    const { secure_url, public_id } = await cloudinary.uploader.upload(req.file.path,
         {
-            folder: 'category'
+            folder: 'e/category'
             // public_id:category.image.public_id
         })
     const category = new Category({
         name,
         slug,
-        image: {secure_url,public_id}
+        image: { secure_url, public_id }
     })
     //add to database
     const createdCategory = await category.save()
@@ -153,6 +153,8 @@ export const updateCategory = async (req, res, next) => {
 
 
 
+
+
 //delete category and it's subcategories
 export const deletCategory = async (req, res, next) => {
     // get data from req
@@ -198,4 +200,76 @@ export const deletCategory = async (req, res, next) => {
     deleteFile(categoryExist.image.path)
 
     return res.status(200).json({ message: messages.category.deleteSuccessfully, success: true })
+}
+
+
+
+
+//delete category and it's subcategories from cloud
+export const deleteCategoryCloud = async (req, res, next) => {
+
+    const { categoryId } = req.query
+    //check category existance
+    const categoryExist = await Category.findByIdAndDelete(categoryId)
+    if (!categoryExist) {
+        return next(new AppError(messages.category.notfound, 404))
+    }
+
+
+    //prepare ids
+    const subcategories = await Subcategory.find({ category: categoryId }).select("image")
+    const products = await Product.find({ category: categoryId }).select(["mainImage", "subImages"])
+    const subcategoriesIds = []
+    const imagePaths = []
+    subcategories.forEach(sub => {
+        imagePaths.push(sub.image)
+        subcategoriesIds.push(sub._id);
+    }) // [id1 , id2 , id3]
+
+    const productIds = []
+    products.forEach(product => {
+        imagePaths.push(product.mainImage)
+        imagePaths.push(...product.subImages)
+        productIds.push(product._id)
+    }) // [id1 , id2 , id3]
+
+
+    //delete subcategory
+
+    await Subcategory.deleteMany({ _id: { $in: subcategoriesIds } });
+    await Product.deleteMany({ _id: { $in: productIds } });
+    // Delete images of subcategories
+    for (let i = 0; i < imagePaths.length; i++) {
+        console.log(imagePaths)
+        if (typeof (imagePaths[i]) == "string") {
+            deleteFile(imagePaths[i])
+        }
+        else {
+            
+            await cloudinary.uploader.destroy(imagePaths[i].public_id)
+        }
+        
+    }
+    console.log(categoryId)
+    // //another sol
+    // await cloudinary.api.delete_resources_by_prefix(`e/category/${categoryId}`);
+    // await cloudinary.api.delete_folder(`e/category/${categoryId}`);
+    // Send response
+    res.status(200).json({ message: 'Category and related resources deleted successfully' });
+}
+
+
+
+
+export const updateCategoryCloud = async (req, res, next) => {
+    const { categoryId } = req.query
+    const category = await Category.findById(categoryId)
+
+    if (req.file) {
+        const { secure_url, public_id } = await cloudinary.uploader.upload(req.file.path, { public_id: category.image.public_id })
+        req.body.image = { secure_url, public_id }
+    }
+    category.image = req.body.image|| category.image
+    category.name = req.body.name || category.name
+   await category.save()
 }
