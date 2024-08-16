@@ -18,13 +18,11 @@ const categorySchema = new Schema(
             trim: true
 
         },
-        image: {
-            type:Object,
-        },
+        image: Object,
         createdBy: {
             type: Schema.Types.ObjectId,
             ref: "User",
-            required: false //todo true
+            required:true
         }
 
 

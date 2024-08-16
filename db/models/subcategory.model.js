@@ -21,7 +21,7 @@ const subcategorySchema = new Schema({
     createdBy:{
         type:Schema.Types.ObjectId,
         ref:"User",
-        required:false,//todo true
+        // required: true
     },
     category:{
         type:Schema.Types.ObjectId,

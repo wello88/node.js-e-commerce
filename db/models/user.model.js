@@ -50,12 +50,13 @@ const userSchema = new Schema({
         street: String,
         city: String,
         phone: String
-    }]
+    }],
+    wishlist: [{
+       
+            type:Schema.Types.ObjectId,
+            ref:"Product"
 
-
-
-
-
+    }, ]
 },
     {
         timestamps: true,

@@ -28,8 +28,9 @@ export const addcategory = async (req, res, next) => {
     const category = new Category({
         name,
         slug,
-        image: { path: req.file.path }
-    })
+        image: { path: req.file.path },
+        createdBy:req.authUser._id
+        })
     //add to database
     const createdCategory = await category.save()
     if (!createdCategory) {
@@ -50,19 +51,20 @@ export const addcategory = async (req, res, next) => {
 export const CreateCategoryCloud = async (req, res, next) => {
 
     //get data from request
-    const { name } = req.body
+    let { name } = req.body
+    name=name.toLowerCase()
     //check file
     if (!req.file) {
         return new AppError(messages.file.required, 400)
     }
     //check existance
-    const categoryExist = await Category.findOne({ name: name.toLowerCase() })
+    const categoryExist = await Category.findOne({name})
     if (categoryExist) {
         return next(new AppError(messages.category.alreadyExist, 409))
     }
     //prepare data
     const slug = slugify(name)
-    const { secure_url, public_id } = await cloudinary.uploader.upload(req.file.path,
+    const { secure_url, public_id } = await cloudinary.uploader.upload(req.file?.path,
         {
             folder: 'e/category'
             // public_id:category.image.public_id
@@ -70,7 +72,8 @@ export const CreateCategoryCloud = async (req, res, next) => {
     const category = new Category({
         name,
         slug,
-        image: { secure_url, public_id }
+        image: { secure_url, public_id },
+        createdBy: req.authUser._id
     })
     //add to database
     const createdCategory = await category.save()
@@ -217,20 +220,23 @@ export const deleteCategoryCloud = async (req, res, next) => {
 
 
     //prepare ids
-    const subcategories = await Subcategory.find({ category: categoryId }).select("image")
-    const products = await Product.find({ category: categoryId }).select(["mainImage", "subImages"])
+    const subcategories = await Subcategory.find({ category: categoryId }).select('image')
+    const products = await Product.find({ category: categoryId }).select('mainImage subImages')
+
+    const imagePaths = [];
+
+
     const subcategoriesIds = []
-    const imagePaths = []
     subcategories.forEach(sub => {
         imagePaths.push(sub.image)
         subcategoriesIds.push(sub._id);
     }) // [id1 , id2 , id3]
 
     const productIds = []
-    products.forEach(product => {
-        imagePaths.push(product.mainImage)
-        imagePaths.push(...product.subImages)
-        productIds.push(product._id)
+    products.forEach(prod => {
+        imagePaths.push(prod.mainImage)
+        imagePaths.push(...prod.subImages)
+        productIds.push(prod._id)
     }) // [id1 , id2 , id3]
 
 
@@ -239,24 +245,24 @@ export const deleteCategoryCloud = async (req, res, next) => {
     await Subcategory.deleteMany({ _id: { $in: subcategoriesIds } });
     await Product.deleteMany({ _id: { $in: productIds } });
     // Delete images of subcategories
-    for (let i = 0; i < imagePaths.length; i++) {
-        console.log(imagePaths)
-        if (typeof (imagePaths[i]) == "string") {
-            deleteFile(imagePaths[i])
-        }
-        else {
-            
-            await cloudinary.uploader.destroy(imagePaths[i].public_id)
-        }
-        
+  // Delete images from Cloudinary
+  for (let i = 0; i < imagePaths.length; i++) {
+    if (typeof (imagePaths[i]) === "string") {
+        deleteFile(imagePaths[i])
     }
-    console.log(categoryId)
-    // //another sol
-    // await cloudinary.api.delete_resources_by_prefix(`e/category/${categoryId}`);
-    // await cloudinary.api.delete_folder(`e/category/${categoryId}`);
-    // Send response
-    res.status(200).json({ message: 'Category and related resources deleted successfully' });
-}
+    else {
+        await cloudinary.uploader.destroy(imagePaths[i]);
+    }
+    }
+    
+  
+  // Delete the category image from Cloudinary
+await cloudinary.uploader.destroy(categoryExist.image.public_id);
+  // Send response
+  res.status(200).json({ message: 'Category and related resources deleted successfully' });
+
+
+};
 
 
 

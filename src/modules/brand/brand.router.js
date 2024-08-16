@@ -4,26 +4,35 @@ import { isvalid } from "../../middleware/validation.js";
 import { createBrandVal, updateBrandval } from "./brand.validation.js";
 import { createBrand,deleteBrand,getBrand,updateBrand } from "./brand.controller.js";
 import { asyncHandler } from "../../utils/apperror.js";
+import { isAuthenticated, isAuthorized } from "../../middleware/authentication.js";
+import { roles } from "../../utils/constant/enums.js";
 
 
 const brandRouter = Router()
-//create brand //todo is authentication
+//create brand
 
 brandRouter.post('/',
+    isAuthenticated(),
+    isAuthorized([roles.ADMIN,roles.SELLER]),
     fileupload({ folder: 'brand' }).single('logo'),
     isvalid(createBrandVal),
     asyncHandler(createBrand)
 )
 brandRouter.get('/get-brand' , asyncHandler(getBrand))
-//update brand //todo auth
+//update brand 
 brandRouter.put('/update-brand/:brandId',
+    isAuthenticated(),
+    isAuthorized([roles.ADMIN,roles.SELLER]),
     fileupload({ folder: 'brand' }).single('logo'),
     isvalid(updateBrandval),
     asyncHandler(updateBrand)
 )
 
-//delete brand todo authentication and authorization
-brandRouter.delete('/delete-brand/:brandId',asyncHandler(deleteBrand))
+//delete brand 
+brandRouter.delete('/delete-brand/:brandId',
+    isAuthenticated(),
+    isAuthorized([roles.ADMIN,roles.SELLER]),
+    asyncHandler(deleteBrand))
 
 
 

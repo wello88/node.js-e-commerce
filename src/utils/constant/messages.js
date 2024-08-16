@@ -13,6 +13,8 @@ const genrateMessage = (entity)=>({
     notverified:`${entity} not verified`,
     invalidCreadintials:`invalid creadintials`,
     loginSuccessfully:`login successfully`,
+    notauthorized:`not authorized`,
+    addToWishlist:'added to wishlist successfully',
 })
 export const messages = {
     user:genrateMessage('user'),
@@ -20,5 +22,6 @@ export const messages = {
     subcategory:genrateMessage('subcategory'),
     Brand:genrateMessage('Brand'),
     product:genrateMessage('product'),
+    wishlist:genrateMessage('wishlist'),
     file:{required:'file is required'}
 }

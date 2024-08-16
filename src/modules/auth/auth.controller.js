@@ -93,7 +93,6 @@ export const login = async (req, res, next) => {
     if (!match) {
         return next(new AppError(messages.user.invalidCreadintials, 401))
     }
-    console.log('Password verified successfully.');
     userExist.isActive = true
 
     await userExist.save()
