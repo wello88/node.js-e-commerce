@@ -7,11 +7,10 @@ return jwt.sign(payload,secretKey,{expiresIn})
 
 
 export const verifyToken = ({token,secretKey= process.env.JWT_SECRET_KEY})=>{
-try {
+
    return jwt.verify(token,secretKey)
-} catch (error) {
-    return next (new AppError(error.message,500))
-}
 
 }
+
+
 

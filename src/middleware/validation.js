@@ -6,6 +6,7 @@ export const generalFields = {
     email: joi.string().email(),
     password: joi.string(),
     repassword: joi.string().valid(joi.ref('password')),
+    comment: joi.string()
 
 
 }

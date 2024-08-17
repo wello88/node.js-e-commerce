@@ -109,7 +109,7 @@ export const updateProduct = async (req, res, next) => {
     const updatedProduct = await Product.findByIdAndUpdate(productId, product, { new: true })
 
     if (!updatedProduct) {
-        return next(new AppError(messages.product.failtoupdate, 500))
+        return next(new AppError(messages.product.failtoUpdate, 500))
     }
 
     return res.status(200).json({

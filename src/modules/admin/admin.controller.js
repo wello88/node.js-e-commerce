@@ -3,32 +3,31 @@ import { AppError } from "../../utils/apperror.js"
 import cloudinary from "../../utils/cloudinary.js"
 import { roles, status } from "../../utils/constant/enums.js"
 import { messages } from "../../utils/constant/messages.js"
+import { hashPassword } from "../../utils/hashAndcompare.js"
 
 // add user 
 export const AddUser = async (req, res, next) => {
 
     //get data from req
-    const { userName, email, phone, role, password } = req.body
+    const { userName, email, phone, role } = req.body
     // check exictance
     const userExist = await User.findOne({ $or: [{ phone }, { email }] })
 
     if (userExist) {
         return next(new AppError(messages.user.alreadyExist, 409))
     }
-
-
     //upload image
     if(req.file){
-
         const {secure_url,public_id}= await cloudinary.uploader.upload(req.file.path,{folder:"e/users"})
         req.body.image = {secure_url,public_id}
     }
+    const hashedpassword = hashPassword({password:'123'})
     const createdUser = await User.create({
         userName,
         email,
         phone,
-        role,
-        password:"123",
+        role,   
+        password:hashedpassword,
         status:status.VERIFIED,
         image:req.body.image
 

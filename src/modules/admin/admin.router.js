@@ -8,12 +8,13 @@ import { AddUser, deleteUser, getAllUsers, getSpecificUser, updateUser } from ".
 const adminRouter = Router();
 
 //add user
-adminRouter.post('/add',
+adminRouter.post('/add-user',
     isAuthenticated(),
     isAuthorized([roles.ADMIN]),
     cloudupload().single('image'),
     // isvalid(),
-    asyncHandler(AddUser)
+        AddUser
+    
 
 )
 

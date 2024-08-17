@@ -13,3 +13,10 @@ export const status = {
 
 }
 Object.freeze(status)
+
+
+export const CouponType={
+    FIXED:"fixed",
+    PERCENTAGE:"percentage"
+}
+Object.freeze(CouponType)

@@ -1,5 +1,4 @@
-import fs from "fs"
-import path from "path"
+
 import { deleteFile } from "./file-functions.js"
 export class AppError extends Error {
 
@@ -23,9 +22,9 @@ export const asyncHandler = (fn)=>{
 export const globalErrorHandler = (err,req,res,next)=>{
     if(req.file){
      deleteFile(req.file.path)
-    }
+    } 
  return res.status(err.statusCode || 500).json({
      message:err.message,
      success:false
- })   
+ })  
 }

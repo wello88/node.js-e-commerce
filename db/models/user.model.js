@@ -65,13 +65,13 @@ const userSchema = new Schema({
     })
 
 
-//hooks
-userSchema.pre('save', async function (next) {
-    if (this.isModified('password')) {
-        this.password = hashPassword({ password: this.password });
-    }
-    next();
-});
+// //hooks
+// userSchema.pre('save', async function (next) {
+//     if (this.isModified('password')) {
+//         this.password = hashPassword({ password: this.password });
+//     }
+//     next();
+// });
 
 //model
 export const User = model('User', userSchema)
