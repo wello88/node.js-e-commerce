@@ -3,6 +3,7 @@ import { AppError } from "../../utils/apperror.js"
 import { orderStatus } from "../../utils/constant/enums.js"
 import { messages } from "../../utils/constant/messages.js"
 
+//create order
 export const createOrder = async (req, res, next) => {
     // get data from req 
     const { address, phone, coupon, payment } = req.body
@@ -24,8 +25,11 @@ export const createOrder = async (req, res, next) => {
     //check product
     let orderProducts = []
     let orderprice = 0
+
     for (const product of products) {
+
         const productExist = await Product.findById(product._id)
+
         if (!productExist) {
             return next(new AppError(messages.product.notfound, 404))
         }
@@ -33,8 +37,6 @@ export const createOrder = async (req, res, next) => {
             return next(new AppError('product out of stock', 400))
 
         }
-
-
         orderProducts.push({
             productId: productExist._id,
             title: productExist.title,
@@ -45,6 +47,8 @@ export const createOrder = async (req, res, next) => {
         orderprice += product.quantity * productExist.finalPrice
 
     }
+
+
     const order = new Order({
         user: req.authUser._id,
         products: orderProducts,
