@@ -20,3 +20,12 @@ export const CouponType={
     PERCENTAGE:"percentage"
 }
 Object.freeze(CouponType)
+
+
+export const orderStatus = {
+    PLACED:"placed",
+    SHIPPED:"shipped",
+    DELIVERED:"delivered",
+    CANCELLED:"cancelled"
+}
+Object.freeze(orderStatus)

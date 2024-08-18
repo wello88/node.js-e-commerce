@@ -103,6 +103,10 @@ productSchema.virtual('finalPrice').get(function () {
 
 })
 
+productSchema.methods.inStock = function (quantity) {
+
+    return this.stock >= quantity ? true : false
+}
 
 //model 
-export const Product = model('Product',productSchema)
+export const Product = model('Product', productSchema)

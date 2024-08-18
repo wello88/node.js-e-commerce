@@ -27,5 +27,8 @@ export const bootStrap = (app, express) => {
     app.use('/wishlist',allRouters.wishlistRouter)
     app.use('/review',allRouters.reviewRouter)
     app.use('/coupon',allRouters.couponRouter)
+    app.use('/cart',allRouters.cartRouter)
+    app.use('/user',allRouters.userRouter)
+    app.use('/order',allRouters.orderRouter)
     app.use(globalErrorHandler)
 }

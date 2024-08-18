@@ -16,6 +16,7 @@ const genrateMessage = (entity)=>({
     notauthorized:`not authorized`,
     addToWishlist:'added to wishlist successfully',
     invalidAmount:'invalid amount',
+    outOfStock:'out of stock',
 })
 export const messages = {
     user:genrateMessage('user'),
@@ -26,5 +27,6 @@ export const messages = {
     wishlist:genrateMessage('wishlist'),
     file:{required:'file is required'},
     review:genrateMessage('review'),
+    order:genrateMessage('order'),
     coupon:genrateMessage('coupon')
 }
