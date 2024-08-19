@@ -10,7 +10,6 @@ import { roles } from "../../utils/constant/enums.js";
 
 const brandRouter = Router()
 //create brand
-
 brandRouter.post('/',
     isAuthenticated(),
     isAuthorized([roles.ADMIN,roles.SELLER]),
@@ -18,6 +17,7 @@ brandRouter.post('/',
     isvalid(createBrandVal),
     asyncHandler(createBrand)
 )
+// get brand
 brandRouter.get('/get-brand' , asyncHandler(getBrand))
 //update brand 
 brandRouter.put('/update-brand/:brandId',
@@ -32,7 +32,8 @@ brandRouter.put('/update-brand/:brandId',
 brandRouter.delete('/delete-brand/:brandId',
     isAuthenticated(),
     isAuthorized([roles.ADMIN,roles.SELLER]),
-    asyncHandler(deleteBrand))
+    asyncHandler(deleteBrand)
+)
 
 
 

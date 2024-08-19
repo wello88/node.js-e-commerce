@@ -4,6 +4,7 @@ import { Subcategory } from "../../../db/models/subcategory.model.js"
 import { AppError } from "../../utils/apperror.js"
 import { messages } from "../../utils/constant/messages.js"
 import { deleteFile } from "../../utils/file-functions.js"
+import { ApiFeature } from "../../utils/apiFeature.js"
 
 //CREATE SUBCATEGORY
 export const addsubcategory = async (req, res, next) => {
@@ -51,6 +52,26 @@ export const addsubcategory = async (req, res, next) => {
 }
 
 
+
+
+//update subcategory
+
+export const updateSubCategory = async (req, res, next) => {
+
+    const { name, category } = req.body
+    const { subCategoryId } = req.params
+    //check existance
+    const subcategoryExist = await Subcategory.findByIdAndUpdate(subCategoryId, { name, category }, { new: true })
+    if (!subcategoryExist) {
+        return next(new AppError(messages.subcategory.notfound,404))
+    }
+    return res.status(200).json({
+        message:messages.subcategory.updateSuccessfully,
+        success:true,
+        data:subcategoryExist
+    })
+}
+
 //GET SUBCATEGORY
 
 export const getsubcategory = async (req, res, next) => {
@@ -79,9 +100,27 @@ export const getsubcategory = async (req, res, next) => {
 }
 
 
+
+//get all sub-category and appli api feture
+export const getAllsubcategory = async (req, res, next) => {
+    const apiFeature = new ApiFeature(Subcategory.find(),req.query).pagination().sort().select().filter()
+
+    const subcategory = await apiFeature.mongooseQuery
+
+    if(!subcategory){
+        return next(new AppError(messages.subcategory.notfound,404))
+
+    }
+
+    return res.status(200).json({
+        message:messages.subcategory.getsuccessfully,
+        success:true,
+        data:subcategory
+    })
+}
+
+
 //delete sub-category
-
-
 export const deletesubcategory = async (req, res, next) => {
     const { subCategoryId } = req.params    
     //check existance   

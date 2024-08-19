@@ -2,6 +2,9 @@ import { Cart, Product } from "../../../db/index.js"
 import { AppError } from "../../utils/apperror.js"
 import { messages } from "../../utils/constant/messages.js"
 
+
+//add to cart
+
 export const addToCart = async (req, res, next) => {
 
     const { productId, quantity } = req.body

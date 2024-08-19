@@ -57,7 +57,7 @@ export const createProduct = async (req, res, next) => {
     })
 
 }
-// pagination ✅ and sorting ✅
+// pagination ✅k and sorting ✅
 
 export const getproduct = async (req, res, next) => {
 

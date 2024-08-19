@@ -3,6 +3,7 @@ import { AppError } from "../../utils/apperror.js"
 import { CouponType } from "../../utils/constant/enums.js"
 import { messages } from "../../utils/constant/messages.js"
 
+//create coupon
 export const createCoupon = async (req, res, next) => {
     //get data from req
     const {couponCode,couponAmount,couponType,fromDate,toDate}=req.body
