@@ -7,9 +7,9 @@ import { genrateToken, verifyToken } from "../../utils/token.js"
 import { status } from "../../utils/constant/enums.js"
 import { Cart } from "../../../db/index.js"
 import { genrateOTP } from "../../utils/otp.js"
-//sign up
+//sign up   
 export const signup = async (req, res, next) => {
-    let { userName, email, password, phone, DOB, } = req.body
+    let { userName, email, password, phone, DOB } = req.body
 
     //check exictance
     const userExist = await User.findOne({ $or: [{ phone }, { email }] })
@@ -25,6 +25,7 @@ export const signup = async (req, res, next) => {
         email,
         phone,
         password,
+    
     })
 
     const createduser = await user.save()

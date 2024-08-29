@@ -4,12 +4,14 @@ import { roles, status } from "../../src/utils/constant/enums.js";
 import dotenv from 'dotenv'
 import { hashPassword } from "../../src/utils/hashAndcompare.js";
 dotenv.config({ path: path.resolve('./config/.env') })
+
+
 const userSchema = new Schema({
 
     userName: {
         type: String,
         required: true,
-        trim: true
+        trim: true 
     },
     email: {
         type: String,

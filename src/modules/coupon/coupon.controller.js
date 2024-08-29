@@ -6,22 +6,22 @@ import { messages } from "../../utils/constant/messages.js"
 //create coupon
 export const createCoupon = async (req, res, next) => {
     //get data from req
-    const {couponCode,couponAmount,couponType,fromDate,toDate}=req.body
+    const {couponCode,discountAmount,type,fromDate,toDate}=req.body
 
     //check coipon
     const couponExist = await Coupon.findOne({couponCode})
     if(couponExist){
         return next(new AppError(messages.coupon.alreadyExist, 409))
     }
-    if(couponType==CouponType.PERCENTAGE && couponAmount>100){
+    if(type==CouponType.PERCENTAGE && discountAmount>100){
         return next(new AppError(messages.coupon.invalidAmount, 400))
     }
 
     //prepare data
     const coupon = new Coupon({
         couponCode,
-        couponAmount,
-        couponType,
+        discountAmount,
+        type,
         fromDate,
         toDate,
         createdBy:req.authUser._id

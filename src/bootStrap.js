@@ -10,12 +10,15 @@ import { connectDB } from "../db/connection.js"
 
 import * as allRouters from'./index.js' 
 import { globalErrorHandler } from "./utils/apperror.js"
+import path from "path"
+import dotenv from 'dotenv'
 
+dotenv.config({path:path.resolve('./config/.env')})
 export const bootStrap = (app, express) => {
     app.use('/uploads', express.static('uploads'))
     app.use(express.json())
     connectDB()
-    const port = 3000
+    const port = process.env.PORT || 3000
     app.get("/", (req, res) => res.send("Hello World!"))
     app.listen(port, () => console.log(`app listening on port ${port}!`))
     app.use('/category', allRouters.categoryRouter)

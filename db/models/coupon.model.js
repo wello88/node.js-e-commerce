@@ -17,8 +17,7 @@ const couponSchema = new Schema({
     },
     type: {
         type: String,
-        enum: Object.values(CouponType),
-        default: CouponType.PERCENTAGE
+        enum: Object.values(CouponType)
     },
     fromDate: {
         type: String,
