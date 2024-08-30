@@ -6,6 +6,8 @@ import { createBrand,deleteBrand,getBrand,updateBrand } from "./brand.controller
 import { asyncHandler } from "../../utils/apperror.js";
 import { isAuthenticated, isAuthorized } from "../../middleware/authentication.js";
 import { roles } from "../../utils/constant/enums.js";
+import cloudinary from "../../utils/cloudinary.js";
+import { cloudupload } from "../../utils/multer.cloud.js";
 
 
 const brandRouter = Router()
@@ -13,7 +15,8 @@ const brandRouter = Router()
 brandRouter.post('/',
     isAuthenticated(),
     isAuthorized([roles.ADMIN,roles.SELLER]),
-    fileupload({ folder: 'brand' }).single('logo'),
+    // fileupload({ folder: 'brand' }).single('logo'),
+    cloudupload({ folder: 'brand' }).single('logo'),
     isvalid(createBrandVal),
     asyncHandler(createBrand)
 )
