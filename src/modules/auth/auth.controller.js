@@ -19,7 +19,7 @@ export const signup = async (req, res, next) => {
         return next(new AppError(messages.user.alreadyExist, 409))
     }
     // prepare Data
-    // password = hashPassword({ password })
+    password = hashPassword({ password })
     const user = new User({
         userName,
         email,

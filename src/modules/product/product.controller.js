@@ -5,6 +5,7 @@ import { Subcategory } from "../../../db/models/subcategory.model.js"
 import { Product } from "../../../db/models/product.model.js"
 import { messages } from "../../utils/constant/messages.js"
 import { ApiFeature } from "../../utils/apiFeature.js"
+import { AppError } from "../../utils/apperror.js"
 
 export const createProduct = async (req, res, next) => {
     //get data from request
