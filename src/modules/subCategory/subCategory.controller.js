@@ -5,6 +5,7 @@ import { AppError } from "../../utils/apperror.js"
 import { messages } from "../../utils/constant/messages.js"
 import { deleteFile } from "../../utils/file-functions.js"
 import { ApiFeature } from "../../utils/apiFeature.js"
+import cloudinary from "../../utils/cloudinary.js"
 
 //CREATE SUBCATEGORY
 export const addsubcategory = async (req, res, next) => {
@@ -29,16 +30,19 @@ export const addsubcategory = async (req, res, next) => {
     
     //prepare data
     const slug = slugify(name)
+    const {secure_url,public_id} = await cloudinary.uploader.upload(req.file?.path,{
+        folder:'e/subcategory'
+    })
     const subcategory = new Subcategory({
         name,
         slug,
         category,
-        image:{path:req.file.path}
+        image:{secure_url,public_id},
     })
     //add to db
     const subCategoryCreated = await subcategory.save()
     if(!subCategoryCreated){
-        deleteFile(subcategory.file.path)
+        cloudinary.uploader.destroy(subcategory.image.public_id)
         return next(new AppError(messages.subcategory.failtocreate,500))
     }
     //response
@@ -128,12 +132,10 @@ export const deletesubcategory = async (req, res, next) => {
     if(!subcategoryExist){
         return next(new AppError(messages.subcategory.notfound,404))
     }
-    // Debugging log to check the structure of subcategoryExist
-    console.log('Subcategory:', JSON.stringify(subcategoryExist, null, 2));
 
          // Check if image and image.path exist before deleting
         if (subcategoryExist.image && subcategoryExist.image.path) {
-            deleteFile(subcategoryExist.image.path);
+            cloudinary.uploader.destroy(subcategoryExist.image.secure_url);
         } else {
             return next(new AppError('file not found',404))
         }

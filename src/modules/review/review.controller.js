@@ -12,8 +12,7 @@ export const addReview = async (req, res, next) => {
     const productExist = await Product.findById(productId)
     if (!productExist) {
         return next(new AppError(messages.product.notfound, 404))
-    }
-    //todo check has order wla la
+    }    
     //check has review wla la
     const reviewExist = await Review.findOneAndUpdate({ user: req.authUser._id, product: productId },
         { comment, rate }, { new: true }

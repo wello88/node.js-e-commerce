@@ -6,7 +6,7 @@ import { generalFields } from "../../middleware/validation.js";
 export const subCategoryVal = joi.object({
     name:generalFields.name.required(),
     category:generalFields.objectId.required(),
-    //todo createdBy:generalFields.objectId.required()
+    createdBy:generalFields.objectId.required()
 
     
 })

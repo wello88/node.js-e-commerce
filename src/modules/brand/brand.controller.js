@@ -1,6 +1,7 @@
 import { Brand } from "../../../db/models/brand.model.js"
 import { ApiFeature } from "../../utils/apiFeature.js"
 import { AppError } from "../../utils/apperror.js"
+import cloudinary from "../../utils/cloudinary.js"
 import { messages } from "../../utils/constant/messages.js"
 import { deleteFile } from "../../utils/file-functions.js"
 
@@ -18,14 +19,19 @@ export const createBrand = async (req, res, next) => {
     //check existance
     const brandExist = await Brand.findOne({ name })
     if (brandExist) {
-        deleteFile(brandExist.logo.path)
+        cloudinary.uploader.destroy(brandExist.logo.path)
         return next(new AppError(messages.Brand.alreadyExist, 409))
     }
     //prepare data 
+    const slug = slugify(name)
+    const { secure_url, public_id } = await cloudinary.uploader.upload(req.file?.path,
+        {
+            folder: 'e/brand'
+        })
     const brand = new Brand({
         name,
-        logo: req.file.path
-        //todo createdBy from token
+        logo: {secure_url,public_id},
+        createdBy: req.authUser._id
     })
     const createdbrand = await brand.save()
     if (!createdbrand) {
@@ -65,7 +71,7 @@ export const updateBrand = async (req, res, next) => {
     if (!brandExist) {
         //remove logo
         if (req.file) {
-            deleteFile(brandExist.logo.path)
+            cloudinary.uploader.destroy(brandExist.logo.public_id)
         }
         return next(new AppError(messages.Brand.notfound.at, 404))
     }
@@ -78,15 +84,17 @@ export const updateBrand = async (req, res, next) => {
     }
     if (req.file) {
         //remove old logo
-        deleteFile(brandExist.logo.path)
+        cloudinary.uploader.destroy(brandExist.logo.public_id)
 
         //save new logo
-        brandExist.logo = req.file.path
+        brandExist.logo = await cloudinary.uploader.upload(req.file.path, {
+            public_id: brandExist.logo.public_id
+        })
     }
     const updatedbrand = await brandExist.save()
     if (!updatedbrand) {
         if (req.file) {
-            deleteFile(brandExist.logo.path)
+            cloudinary.uploader.destroy(brandExist.logo.public_id)
         }
         return next(new AppError(messages.Brand.failtoUpdate, 500))
     }
@@ -109,7 +117,7 @@ export const deleteBrand = async (req, res, next) => {
         return next(new AppError(messages.Brand.notfound.at, 404))
     }
     //remove logo
-    deleteFile(brandExist.logo.path)
+    cloudinary.uploader.destroy(brandExist.logo.public_id)
     const deletedbrand = await brandExist.remove()
     if (!deletedbrand) {
         return next(new AppError(messages.Brand.failtoDelete, 500))
