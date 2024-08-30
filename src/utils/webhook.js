@@ -5,7 +5,7 @@ import { asyncHandler } from "./apperror.js";
 export const webhook =asyncHandler(
     async (req, res) => {
         const sig = req.headers['stripe-signature'].toString()
-        const stripe = new Stripe(process.env.STRIPE_KEY)
+        const stripe = new Stripe('sk_test_51PsDDhRpKqTFN2KJArLBAuv14k6NLQUzRSUiMBYfeTgjVwEyI6brWRK22p57TmSpi00FBSmyAFl6YuaQLJiTfMTU00ysME3VM7')
         let event = stripe.webhooks.constructEvent(req.body, sig,'whsec_YXsvLqn8SEDStqZZOA57ej55WQ3602ws');
 
 
