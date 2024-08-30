@@ -43,6 +43,10 @@ export const createOrder = async (req, res, next) => {
             return next(new AppError('product out of stock', 400))
 
         }
+        // Decrement product stock
+        await Product.findByIdAndUpdate(productExist._id, {
+            $inc: { stock: -product.quantity }
+        });
         orderProducts.push({
             productId: productExist._id,
             title: productExist.title,
