@@ -35,7 +35,8 @@ export const createBrand = async (req, res, next) => {
     return res.status(201).json({
         success: true,
         message: messages.Brand.createSuccessfully,
-        data: createdbrand
+        data: createdbrand,
+        createdBy: createdbrand.createdBy
 
     })
 }
