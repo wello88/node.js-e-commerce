@@ -4,6 +4,7 @@ import { generalFields } from "../../middleware/validation.js"
 export const createBrandVal = joi.object({
     
     name:generalFields.name.required(),
+    createdBy:generalFields.objectId.required(),
 
 
 }).required()
