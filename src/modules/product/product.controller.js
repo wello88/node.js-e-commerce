@@ -156,35 +156,37 @@ export const updateProduct = async (req, res, next) => {
 
 //delete product with images associated
 export const deleteProduct = async (req, res, next) => {
-  const { productId } = req.params;
-
-  const productExist = await Product.findById(productId);
-  if (!productExist) {
-    return next(new AppError(messages.product.notfound, 404));
-  }
-
-  // Delete the main image from Cloudinary
-  if (productExist.mainImage) {
-    // Extract the public ID from the Cloudinary URL
-    const mainImagePublicId = productExist.mainImage.split('/').pop().split('.')[0];
-    await cloudinary.uploader.destroy(mainImagePublicId);
-  }
-
-  // Delete each sub-image from Cloudinary
-  if (productExist.subImages && productExist.subImages.length > 0) {
-    await Promise.all(
-      productExist.subImages.map(async (image) => {
-        const subImagePublicId = image.split('/').pop().split('.')[0];
-        await cloudinary.uploader.destroy(subImagePublicId);
-      })
-    );
-  }
-
-  // Delete the product from the database
-  await Product.findByIdAndDelete(productId);
-
-  return res.status(200).json({
-    message: messages.product.deleteSuccessfully,
-    success: true,
-  });
-};
+    const { productId } = req.params;
+  
+    // Check if the product exists
+    const productExist = await Product.findById(productId);
+    if (!productExist) {
+      return next(new AppError(messages.product.notfound, 404));
+    }
+  
+    // Delete the main image from Cloudinary
+    if (productExist.mainImage) {
+      // Extract the public ID from the Cloudinary URL
+      const mainImagePublicId = `e/product/${productExist.mainImage.split('/').pop().split('.')[0]}`;
+      await cloudinary.uploader.destroy(mainImagePublicId);
+    }
+  
+    // Delete each sub-image from Cloudinary
+    if (productExist.subImages && productExist.subImages.length > 0) {
+      await Promise.all(
+        productExist.subImages.map(async (image) => {
+          // Extract the public ID from the Cloudinary URL
+          const subImagePublicId = `e/product/${image.split('/').pop().split('.')[0]}`;
+          await cloudinary.uploader.destroy(subImagePublicId);
+        })
+      );
+    }
+  
+    // Delete the product from the database
+    await Product.findByIdAndDelete(productId);
+  
+    return res.status(200).json({
+      message: messages.product.deleteSuccessfully,
+      success: true,
+    });
+  };
