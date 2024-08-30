@@ -14,7 +14,8 @@ const subCategoryRouter = Router()
 subCategoryRouter.post('/add-sub-category',
     isAuthenticated(),
     isAuthorized([roles.ADMIN, roles.SELLER]),
-    fileupload({ folder: 'subcategory' }).single('image'),
+    cloudupload({ folder: 'subcategory' }).single('image'),
+    // fileupload({ folder: 'subcategory' }).single('image'),
     isvalid(subCategoryVal),
     asyncHandler(addsubcategory))
 
