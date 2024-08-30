@@ -12,7 +12,7 @@ import { webhook } from "./utils/webhook.js";
 dotenv.config({ path: path.resolve('./config/.env') })
 
 
-export const bootStrap = (app) => {
+export const bootStrap = (app,express) => {
     app.post('/webhook',express.raw({type: 'application/json'}),
  
     webhook
