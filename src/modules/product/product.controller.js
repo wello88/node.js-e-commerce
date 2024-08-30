@@ -106,13 +106,27 @@ export const updateProduct = async (req, res, next) => {
     }
 
     const slug = slugify(title)
+      // Upload mainImage to Cloudinary
+      const mainImageUpload = await cloudinary.uploader.upload(req.files.mainImage[0].path,{
+        folder:'e/product'
+    });
+    const mainImage = mainImageUpload.secure_url;
 
+    // Upload subImages to Cloudinary and store their URLs in an array
+    const subImages = await Promise.all(
+        req.files.subImages.map(async (image) => {
+            const uploadResult = await cloudinary.uploader.upload(image.path,{
+                folder:'e/product'
+            });
+            return uploadResult.secure_url;
+        })
+    );
 
     const product = {
         title,
         slug,
-        mainImage: req.files.mainImage[0].path,
-        subImages: req.files.subImages.map((image) => image.path),
+        mainImage,
+        subImages,
         description,
         price,
         category,
@@ -141,27 +155,36 @@ export const updateProduct = async (req, res, next) => {
 
 
 //delete product with images associated
-
 export const deleteProduct = async (req, res, next) => {
-    const { productId } = req.params
+  const { productId } = req.params;
 
-    const productExist = await Product.findById(productId)
-    if (!productExist) {
-        return next(new AppError(messages.product.notfound, 404))
-    }
+  const productExist = await Product.findById(productId);
+  if (!productExist) {
+    return next(new AppError(messages.product.notfound, 404));
+  }
 
-    //find and delete image
+  // Delete the main image from Cloudinary
+  if (productExist.mainImage) {
+    // Extract the public ID from the Cloudinary URL
+    const mainImagePublicId = productExist.mainImage.split('/').pop().split('.')[0];
+    await cloudinary.uploader.destroy(mainImagePublicId);
+  }
 
-    deleteFile(productExist.mainImage.path)
-    productExist.subImages.forEach((image) => {
-        deleteFile(image.path)
-    })
-    await Product.findByIdAndDelete(productId)
+  // Delete each sub-image from Cloudinary
+  if (productExist.subImages && productExist.subImages.length > 0) {
+    await Promise.all(
+      productExist.subImages.map(async (image) => {
+        const subImagePublicId = image.split('/').pop().split('.')[0];
+        await cloudinary.uploader.destroy(subImagePublicId);
+      })
+    );
+  }
 
-    return res.status(200).json({
-        message: messages.product.deleteSuccessfully,
-        success: true
-    })
+  // Delete the product from the database
+  await Product.findByIdAndDelete(productId);
 
-
-}
+  return res.status(200).json({
+    message: messages.product.deleteSuccessfully,
+    success: true,
+  });
+};
