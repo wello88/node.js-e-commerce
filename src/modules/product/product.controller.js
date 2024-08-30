@@ -30,18 +30,30 @@ export const createProduct = async (req, res, next) => {
     //prepare data
     const slug = slugify(title)
 
+    // Upload mainImage to Cloudinary
+    const mainImageUpload = await cloudinary.uploader.upload(req.files.mainImage[0].path);
+    const mainImage = mainImageUpload.secure_url;
+
+    // Upload subImages to Cloudinary and store their URLs in an array
+    const subImages = await Promise.all(
+        req.files.subImages.map(async (image) => {
+            const uploadResult = await cloudinary.uploader.upload(image.path);
+            return uploadResult.secure_url;
+        })
+    );
+
     const product = new Product({
         title,
         slug,
-        mainImage: req.files.mainImage[0].path,
-        subImages: req.files.subImages.map((image) => image.path),
+        mainImage,
+        subImages,
         description,
         price,
         category,
         subcategory,
         brand,
         stock,
-        discount,   
+        discount,
         size: JSON.parse(size),
         colors: JSON.parse(colors),
         createdBy: req.authUser._id
@@ -62,7 +74,7 @@ export const createProduct = async (req, res, next) => {
 
 export const getproduct = async (req, res, next) => {
 
-    const apiFeature = new ApiFeature(Product.find(),req.query).pagination().sort().select().filter()
+    const apiFeature = new ApiFeature(Product.find(), req.query).pagination().sort().select().filter()
 
     const product = await apiFeature.mongooseQuery
 
@@ -125,25 +137,25 @@ export const updateProduct = async (req, res, next) => {
 
 //delete product with images associated
 
-export const deleteProduct = async (req,res,next)=>{
-    const {productId}= req.params
+export const deleteProduct = async (req, res, next) => {
+    const { productId } = req.params
 
     const productExist = await Product.findById(productId)
-    if(!productExist){
-        return next(new AppError(messages.product.notfound,404))
+    if (!productExist) {
+        return next(new AppError(messages.product.notfound, 404))
     }
 
-//find and delete image
+    //find and delete image
 
     deleteFile(productExist.mainImage.path)
-    productExist.subImages.forEach((image)=>{
+    productExist.subImages.forEach((image) => {
         deleteFile(image.path)
     })
     await Product.findByIdAndDelete(productId)
 
     return res.status(200).json({
-        message:messages.product.deleteSuccessfully,    
-        success:true
+        message: messages.product.deleteSuccessfully,
+        success: true
     })
 
 
