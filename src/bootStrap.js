@@ -7,35 +7,15 @@ import { Cart, Order, Product } from "../db/index.js";
 import { asyncHandler } from "./utils/apperror.js"
 import * as allRouters from './index.js'
 import { globalErrorHandler } from "./utils/apperror.js"
+import { webhook } from "./utils/webhook.js";
 
 dotenv.config({ path: path.resolve('./config/.env') })
 
 
 export const bootStrap = (app) => {
     app.post('/webhook',express.raw({type: 'application/json'}),
-        asyncHandler(
-            async (req, res) => {
-                const sig = req.headers['stripe-signature'].toString()
-                const stripe = new Stripe(process.env.STRIPE_KEY)
-                let event = stripe.webhooks.constructEvent(req.body, sig,'whsec_vfvnEzZMRniDnjSpA2wGDKsQqt2muljs');
-        
-        
-                // Handle the event checkout.session.completed  
-                if (event.type === 'checkout.session.completed') {
-                    const checkout = event.data.object  
-                    //clear cart
-                    const orderId = checkout.metadata.orderId
-                    //update order status to placed
-                    const orderExist = await Order.findByIdAndUpdate(orderId, { status: 'placed' }, { new: true })
-                    const cart = await Cart.findOneAndUpdate({ user: orderExist.user }, { products: [] }, { new: true })
-                    for(const product of orderExist.products){
-                     await Product.findById(product.productId, { $inc: { stock: -product.quantity } })
-                    }
-                }
-                // return a 200 res to acknowledge receipt of the event
-                res.send()
-            })
-    
+ 
+    webhook
     
     )
     
