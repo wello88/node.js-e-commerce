@@ -17,9 +17,9 @@ export const webhook =asyncHandler(
             //update order status to placed
             const orderExist = await Order.findByIdAndUpdate(orderId, { status: 'placed' }, { new: true })
             const cart = await Cart.findOneAndUpdate({ user: orderExist.user }, { products: [] }, { new: true })
-            for(const product of orderExist.products){
-             await Product.findById(product.productId, { $inc: { stock: -product.quantity } })
-            }
+            // for(const product of orderExist.products){
+            //  await Product.findById(product.productId, { $inc: { stock: -product.quantity } })
+            // }
         }
         // return a 200 res to acknowledge receipt of the event
         res.send()
