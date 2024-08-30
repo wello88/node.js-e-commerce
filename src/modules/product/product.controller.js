@@ -41,7 +41,7 @@ export const createProduct = async (req, res, next) => {
         subcategory,
         brand,
         stock,
-        discount,
+        discount,   
         size: JSON.parse(size),
         colors: JSON.parse(colors),
         createdBy: req.authUser._id

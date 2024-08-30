@@ -6,13 +6,14 @@ import { asyncHandler } from "../../utils/apperror.js"
 import { createProduct, deleteProduct, getproduct, updateProduct } from "./product.controller.js"
 import { isAuthenticated, isAuthorized } from "../../middleware/authentication.js"
 import { roles } from "../../utils/constant/enums.js"
+import { cloudupload } from "../../utils/multer.cloud.js"
 const productRouter = Router()
 
 //create product 
 productRouter.post('/add-product',
     isAuthenticated(),
     isAuthorized([roles.ADMIN, roles.SELLER]),
-    fileupload({ folder: 'product' }).fields([
+    cloudupload({ folder: 'product' }).fields([
         { name: 'mainImage', maxCount: 1 },
         { name: 'subImages', maxCount: 5 }
 
