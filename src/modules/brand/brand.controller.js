@@ -6,7 +6,7 @@ import { deleteFile } from "../../utils/file-functions.js"
 
 export const createBrand = async (req, res, next) => {
 
-    let { name } = req.body
+    let { name,createdBy } = req.body
     name = name.toLowerCase()
 
 
