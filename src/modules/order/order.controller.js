@@ -89,7 +89,7 @@ export const createOrder = async (req, res, next) => {
             payment_method_types: ['card'],
             mode: 'payment',
             metadata: {
-                orderId: createdOrder._id
+                orderId: createdOrder._id.toString()
             },
             line_items: createdOrder.products.map((product) => {
                 return {
