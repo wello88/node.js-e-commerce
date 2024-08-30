@@ -32,7 +32,9 @@ export const createProduct = async (req, res, next) => {
     const slug = slugify(title)
 
     // Upload mainImage to Cloudinary
-    const mainImageUpload = await cloudinary.uploader.upload(req.files.mainImage[0].path);
+    const mainImageUpload = await cloudinary.uploader.upload(req.files.mainImage[0].path,{
+        folder:'e/product'
+    });
     const mainImage = mainImageUpload.secure_url;
 
     // Upload subImages to Cloudinary and store their URLs in an array
