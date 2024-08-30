@@ -40,7 +40,9 @@ export const createProduct = async (req, res, next) => {
     // Upload subImages to Cloudinary and store their URLs in an array
     const subImages = await Promise.all(
         req.files.subImages.map(async (image) => {
-            const uploadResult = await cloudinary.uploader.upload(image.path);
+            const uploadResult = await cloudinary.uploader.upload(image.path,{
+                folder:'e/product'
+            });
             return uploadResult.secure_url;
         })
     );
