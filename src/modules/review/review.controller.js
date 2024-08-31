@@ -60,29 +60,26 @@ export const getReviews = async (req, res, next) => {
 
 //delete reviews with auth and authorizationn
 export const deleteReview = async (req, res, next) => {
-
-    const { reviewId } = req.params
-    const {userId} = req.authUser._id
-
+    // get data from req
+    const {reviewId} = req.params
+    // check existance
     const reviewExist = await Review.findById(reviewId)
-
     if (!reviewExist) {
         return next(new AppError(messages.review.notfound, 404))
     }
-
-    if (reviewExist.user.toString() !== userId) {
-        return next(new AppError('you are not authorized to delete this review', 401))
+    // check user
+    if (reviewExist.user.toString() !== req.authUser._id.toString()) {
+        return next(new AppError(messages.review.notauthorized, 400))
     }
-
-    const deletedReview = await Review.findByIdAndDelete(reviewId)  
-
+    // delete review
+    const deletedReview = await Review.findByIdAndDelete(reviewId)
     if (!deletedReview) {
-        return next(new AppError(messages.review.failtoDelete, 500))
+        return next(new AppError(messages.review.failtoDelete, 400))
     }
-
+    // send response
     return res.status(200).json({
-        success: true,
-        message: messages.review.deleteSuccessfully
+        message: messages.review.deleteSuccessfully,
+        success: true
     })
-}
 
+}

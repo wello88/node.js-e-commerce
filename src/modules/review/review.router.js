@@ -15,10 +15,11 @@ reviewRouter.post('/add-review',
     asyncHandler(addReview)
 
 )
-
+//get review
 reviewRouter.get('/get-reviews' , asyncHandler(getReviews))
+//delete review
 
-reviewRouter.delete('/delete-review',
+reviewRouter.delete('/delete-review/:reviewId',
     isAuthenticated(),
     isAuthorized([roles.ADMIN, roles.CUSTOMER]),
     asyncHandler(deleteReview)

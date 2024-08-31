@@ -7,7 +7,7 @@ import { genrateToken, verifyToken } from "../../utils/token.js"
 import { status } from "../../utils/constant/enums.js"
 import { Cart } from "../../../db/index.js"
 import { genrateOTP } from "../../utils/otp.js"
-//sign up   
+//sign up       
 export const signup = async (req, res, next) => {
     let { userName, email, password, phone, DOB } = req.body
 
@@ -75,38 +75,32 @@ export const verifyAccount = async (req, res, next) => {
 
 
 //login 
-export const login = async (req, res, next) => {
-    //get data from req
-    const { email, password, phone } = req.body
-
-
-
-    const userExist = await User.findOne({ $or: [{ email }, { phone }] })
-
-    if (!userExist) {
-        return next(new AppError(messages.user.notfound, 404))
+export const login = async(req, res, next) => {
+    // get data from req
+    const { email, password,phone } = req.body
+    // check existance
+    const user = await User.findOne({ $or: [{ email }, { phone }],status:status.VERIFIED })
+    if (!user) {
+        return next(new AppError(messages.user.invalidCreadintials, 404))
     }
-
-    if (!userExist.status === status.VERIFIED) {
-        return next(new AppError(messages.user.notverified, 401))
-    }
-
-    //check password
-    const match = comparePassword(password, userExist.password)
-
+    // check password
+    const match = comparePassword({ password, hashPassword: user.password })
     if (!match) {
-        return next(new AppError(messages.user.invalidCreadintials, 401))
+        return next(new AppError(messages.user.invalidCreadintials, 400))
     }
-    userExist.isActive = true
-
-    await userExist.save()
-
-    const accessToken = genrateToken({ payload: { _id: userExist._id } })
-    return res.status(200).json({
+    // check status
+    // if (user.status !== status.VERIFIED) {
+    //     return next(new AppError(messages.user.notVerified, 400))
+    // }
+    user.isActive = true
+    await user.save()
+    // create token
+    const accessToken = genrateToken({ payload: { _id: user._id } })
+    // send response
+    res.status(200).json({
         success: true,
-        accessToken,
-        message: messages.user.loginSuccessfully
-
+        message: messages.user.loginSuccessfully,
+        accessToken
     })
 }
 

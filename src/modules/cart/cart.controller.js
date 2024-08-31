@@ -44,3 +44,20 @@ export const addToCart = async (req, res, next) => {
 
 
 }
+
+
+
+//remove from cart
+
+export const removeFromCart = async (req, res, next) => {
+    const { productId } = req.body
+
+    const userCart = await Cart.findOneAndUpdate(
+        { user: req.authUser._id },
+        { $unset: { products: { productId } } },
+        { new: true }
+    )   
+
+    return res.status(200).json({ success: true, message: 'done', data:userCart })
+
+}
