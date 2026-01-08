@@ -1,20 +1,30 @@
 import { Router } from "express";
 import { isAuthenticated } from "../../middleware/authentication.js";
-import { addToWishlist, deleteFromWishlist } from "./wishlist.controller.js";
+import { addToWishlist, deleteFromWishlist, getWishlist, isInWishlist } from "./wishlist.controller.js";
 import { asyncHandler } from "../../utils/apperror.js";
 
 const wishlistRouter = Router();
 
-//add to wishlist
-
-wishlistRouter.put('/add-to-wishlist',
+// Get wishlist
+wishlistRouter.get('/get-wishlist',
     isAuthenticated(),
-    asyncHandler(addToWishlist)
-
+    asyncHandler(getWishlist)
 )
 
+// Check if product is in wishlist
+wishlistRouter.get('/check/:productId',
+    isAuthenticated(),
+    asyncHandler(isInWishlist)
+)
 
-wishlistRouter.put('/deleteFromWishlist/:productId',
+// Add to wishlist
+wishlistRouter.post('/add-to-wishlist',
+    isAuthenticated(),
+    asyncHandler(addToWishlist)
+)
+
+// Remove from wishlist
+wishlistRouter.delete('/remove/:productId',
     isAuthenticated(),
     asyncHandler(deleteFromWishlist)
 )

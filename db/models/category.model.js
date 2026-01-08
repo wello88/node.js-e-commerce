@@ -10,6 +10,10 @@ const categorySchema = new Schema(
             lowercasr: true,
             trim: true
         },
+        nameAr: {
+            type: String,
+            trim: true
+        },
         slug: {
             type: String,
             reqired: true,

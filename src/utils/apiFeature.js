@@ -28,10 +28,17 @@ export class ApiFeature {
         return this
     }
     filter(){
-        let {page,sizr,sort,select , ...filter} = this.queryData
+        let {page, size, sort, select, limit, lang, ...filter} = this.queryData
 
-        filter = JSON.parse( JSON.stringify(filter).replace(/gte|gt|lt|lte|ne/g, match => `$${match}`))
-        this.mongooseQuery.find(filter)
+        // Convert limit to size if provided
+        if (limit && !size) {
+            size = limit;
+        }
+
+        filter = JSON.parse(JSON.stringify(filter).replace(/gte|gt|lt|lte|ne/g, match => `$${match}`))
+        if (Object.keys(filter).length > 0) {
+            this.mongooseQuery.find(filter)
+        }
         return this
     }
 

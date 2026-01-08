@@ -4,11 +4,20 @@ import dotenv from 'dotenv'
 import { connectDB } from "../db/connection.js"
 import * as allRouters from './index.js'
 import { globalErrorHandler } from "./utils/apperror.js"
+import cors from 'cors'
 
 dotenv.config({ path: path.resolve('./config/.env') })
 
 
 export const bootStrap = (app,express) => {
+    // CORS configuration
+    app.use(cors({
+        origin: process.env.FRONTEND_URL || 'http://localhost:8081',
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'token']
+    }))
+    
     app.post('/webhook',
         express.raw({ type: 'application/json' }),
         webhook

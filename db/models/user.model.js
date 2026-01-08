@@ -71,6 +71,11 @@ const userSchema = new Schema({
     })
 
 
+
+export const User = model('User', userSchema)
+
+
+
 // //hooks
 // userSchema.pre('save', async function (next) {
 //     if (this.isModified('password')) {
@@ -80,4 +85,3 @@ const userSchema = new Schema({
 // });
 
 //model
-export const User = model('User', userSchema)

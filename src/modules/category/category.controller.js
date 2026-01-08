@@ -6,17 +6,44 @@ import { deleteFile } from "../../utils/file-functions.js"
 import { Subcategory } from "../../../db/models/subcategory.model.js"
 import { Product } from "../../../db/models/product.model.js"
 import cloudinary from "../../utils/cloudinary.js"
-// import axios from "axios"
 
+// Helper function to localize category
+const localizeCategory = (category, lang) => {
+    if (!category) return category
+    const catObj = category.toObject ? category.toObject() : { ...category }
+    
+    if (lang === 'ar') {
+        catObj.name = catObj.nameAr || catObj.name
+    }
+    return catObj
+}
+
+// GET ALL CATEGORIES (Public)
+export const getAllCategories = async (req, res, next) => {
+    const { lang } = req.query // 'en' or 'ar'
+    
+    const categories = await Category.find()
+        .select('name nameAr slug image')
+        .sort({ name: 1 })
+
+    // Localize if language specified
+    const localizedCategories = categories.map(cat => localizeCategory(cat, lang))
+
+    return res.status(200).json({
+        success: true,
+        message: 'Categories retrieved successfully',
+        data: localizedCategories
+    })
+}
 
 //CREATE CATEGORY
 export const addcategory = async (req, res, next) => {
 
     //get data from request
-    const { name } = req.body
+    const { name, nameAr } = req.body
     //check file
     if (!req.file) {
-        return new AppError(messages.file.required, 400)
+        return next(new AppError(messages.file.required, 400))
     }
     //check existance
     const categoryExist = await Category.findOne({ name: name.toLowerCase() })
@@ -27,10 +54,11 @@ export const addcategory = async (req, res, next) => {
     const slug = slugify(name)
     const category = new Category({
         name,
+        nameAr,
         slug,
         image: { path: req.file.path },
-        createdBy:req.authUser._id
-        })
+        createdBy: req.authUser._id
+    })
     //add to database
     const createdCategory = await category.save()
     if (!createdCategory) {
@@ -51,11 +79,11 @@ export const addcategory = async (req, res, next) => {
 export const CreateCategoryCloud = async (req, res, next) => {
 
     //get data from request
-    let { name } = req.body
+    let { name, nameAr } = req.body
     name=name.toLowerCase()
     //check file
     if (!req.file) {
-        return new AppError(messages.file.required, 400)
+        return next(new AppError(messages.file.required, 400))
     }
     //check existance
     const categoryExist = await Category.findOne({name})
@@ -71,6 +99,7 @@ export const CreateCategoryCloud = async (req, res, next) => {
         })
     const category = new Category({
         name,
+        nameAr,
         slug,
         image: { secure_url, public_id },
         createdBy: req.authUser._id
@@ -95,19 +124,21 @@ export const CreateCategoryCloud = async (req, res, next) => {
 export const getSpecificCategory = async (req, res, next) => {
     //GET DATA FROM REQ 
     const { categoryId } = req.params
+    const { lang } = req.query // 'en' or 'ar'
 
     const category = await Category.findById(categoryId).populate([{ path: 'subcategory' }])
-    category ?
-        res.status(200).json({ data: category, success: true })
-        : next(new AppError(messages.category.notfound, 404))
-
-    // axios({
-    //     method:'get',
-    //     url:`${req.protocol}://${req.headers.host}/sub-category/${req.params.categoryId}`
-    // }).then((response)=>{
-    //     res.status(response.status).json({response:response.data,success:true})
-    // }).catch(err => {return next(new AppError(err.message,500))})
-
+    
+    if (!category) {
+        return next(new AppError(messages.category.notfound, 404))
+    }
+    
+    // Localize if language specified
+    const localizedCategory = localizeCategory(category, lang)
+    
+    return res.status(200).json({ 
+        data: localizedCategory, 
+        success: true 
+    })
 }
 
 
@@ -115,7 +146,7 @@ export const getSpecificCategory = async (req, res, next) => {
 //UPDATE CATEGORY
 export const updateCategory = async (req, res, next) => {
     //getdaata
-    const { name } = req.body
+    const { name, nameAr } = req.body
     const { categoryId } = req.params
 
     //check existance
@@ -124,20 +155,25 @@ export const updateCategory = async (req, res, next) => {
         return next(new AppError(messages.category.notfound, 404))
     }
     //check name existance
-    const nameExist = await Category.findOne({ name, _id: { $ne: categoryId } })
-    if (nameExist) {
-        return next(new AppError(messages.category.alreadyExist, 409))
-    }
-    //prepare data
     if (name) {
+        const nameExist = await Category.findOne({ name, _id: { $ne: categoryId } })
+        if (nameExist) {
+            return next(new AppError(messages.category.alreadyExist, 409))
+        }
+        categoryExist.name = name
         categoryExist.slug = slugify(name)
     }
+    
+    // Update Arabic name
+    if (nameAr !== undefined) {
+        categoryExist.nameAr = nameAr
+    }
+    
     //UPDATE IMAGE   
     if (req.file) {
         //delete old image
         deleteFile(categoryExist.image.path)
         //add new image
-
         categoryExist.image.path = req.file.path
     }
     //save to db
@@ -271,11 +307,26 @@ export const updateCategoryCloud = async (req, res, next) => {
     const { categoryId } = req.query
     const category = await Category.findById(categoryId)
 
+    if (!category) {
+        return next(new AppError(messages.category.notfound, 404))
+    }
+
     if (req.file) {
         const { secure_url, public_id } = await cloudinary.uploader.upload(req.file.path, { public_id: category.image.public_id })
         req.body.image = { secure_url, public_id }
     }
-    category.image = req.body.image|| category.image
+    
+    category.image = req.body.image || category.image
     category.name = req.body.name || category.name
-   await category.save()
+    if (req.body.nameAr !== undefined) {
+        category.nameAr = req.body.nameAr
+    }
+    
+    const updatedCategory = await category.save()
+    
+    return res.status(200).json({
+        success: true,
+        message: messages.category.updateSuccessfully,
+        data: updatedCategory
+    })
 }

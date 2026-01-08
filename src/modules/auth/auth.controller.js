@@ -11,22 +11,28 @@ import { genrateOTP } from "../../utils/otp.js"
 export const signup = async (req, res, next) => {
     let { userName, email, password, phone, DOB } = req.body
 
-    //check exictance
-    const userExist = await User.findOne({ $or: [{ phone }, { email }] })
+    //check exictance - only check phoneNumber if it's provided
+    const queryConditions = [{ email }];
+    if (phone) {
+        queryConditions.push({ phoneNumber: phone });
+    }
+    const userExist = await User.findOne({ $or: queryConditions })
 
     if (userExist) {
-
         return next(new AppError(messages.user.alreadyExist, 409))
     }
     // prepare Data
     password = hashPassword({ password })
-    const user = new User({
+    const userData = {
         userName,
         email,
-        phone,
         password,
-    
-    })
+    };
+    // Only add phoneNumber if it's provided
+    if (phone) {
+        userData.phoneNumber = phone;
+    }
+    const user = new User(userData)
 
     const createduser = await user.save()
     if (!createduser) {
@@ -77,15 +83,28 @@ export const verifyAccount = async (req, res, next) => {
 //login 
 export const login = async(req, res, next) => {
     // get data from req
-    const { email, password,phone } = req.body
-    // check existance
-    const user = await User.findOne({ $or: [{ email }, { phone }],status:status.VERIFIED })
+    const { email, password, phone } = req.body
+    // check existance - only check phoneNumber if it's provided
+    const queryConditions = [{ email }];
+    if (phone) {
+        queryConditions.push({ phoneNumber: phone });
+    }
+    // Find user (allow pending status for easier development - remove status check if needed)
+    const user = await User.findOne({ $or: queryConditions })
     if (!user) {
         return next(new AppError(messages.user.invalidCreadintials, 404))
     }
+    // Check if user is blocked
+    if (user.status === status.BLOCKED) {
+        return next(new AppError('Your account has been blocked', 403))
+    }
+    // Auto-verify pending users on login (for development convenience)
+    if (user.status === status.PENDING) {
+        user.status = status.VERIFIED
+    }
     // check password
     const match = comparePassword({ password, hashPassword: user.password })
-    if (!match) {
+    if (!match) {   
         return next(new AppError(messages.user.invalidCreadintials, 400))
     }
     // check status

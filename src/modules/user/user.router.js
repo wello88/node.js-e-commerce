@@ -2,6 +2,7 @@ import { Router } from "express";
 import { isAuthenticated } from "../../middleware/authentication.js";
 import { deleteUser, getUserData, resetPassword, updateUser } from "./user.controller.js";
 import { asyncHandler } from "../../utils/apperror.js";
+import { cloudupload } from "../../utils/multer.cloud.js";
 
 const userRouter = Router();
 
@@ -17,8 +18,9 @@ userRouter.get('/get-data',
 )    
 
 //update user data 
-userRouter.put ('/update-data',
+userRouter.put('/update-data',
     isAuthenticated(),
+    cloudupload().single('image'),
     asyncHandler(updateUser)
 )
 

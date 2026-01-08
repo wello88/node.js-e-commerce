@@ -10,6 +10,10 @@ const productSchema = new Schema({
         required: true,
         trim: true
     },
+    titleAr: {
+        type: String,
+        trim: true
+    },
     slug: {
         type: String,
         required: true,
@@ -21,6 +25,10 @@ const productSchema = new Schema({
         required: true,
         trim: true
 
+    },
+    descriptionAr: {
+        type: String,
+        trim: true
     },
 
 
@@ -34,13 +42,13 @@ const productSchema = new Schema({
     },
     subcategory: {
         type: Schema.Types.ObjectId,
-        ref: "Subcategory",
-        required: true
+        ref: "Subcategory"
+        // Not required - optional
     },
     brand: {
         type: Schema.Types.ObjectId,
-        ref: "Brand",
-        required: true
+        ref: "Brand"
+        // Not required - optional
     },
     createdBy: {
         type: Schema.Types.ObjectId,

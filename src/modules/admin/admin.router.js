@@ -1,45 +1,49 @@
 import { Router } from "express";
 import { isAuthenticated, isAuthorized } from "../../middleware/authentication.js";
 import { roles } from "../../utils/constant/enums.js";
-import { cloudupload} from "../../utils/multer.cloud.js";
+import { cloudupload } from "../../utils/multer.cloud.js";
 import { asyncHandler } from "../../utils/apperror.js";
-import { AddUser, deleteUser, getAllUsers, getSpecificUser, updateUser } from "./admin.controller.js";
+import { 
+    AddUser, 
+    deleteUser, 
+    getAllUsers, 
+    getSpecificUser, 
+    updateUser,
+    getDashboardStats 
+} from "./admin.controller.js";
 
 const adminRouter = Router();
 
-//add user
+// Dashboard stats
+adminRouter.get('/dashboard-stats',
+    isAuthenticated(),
+    isAuthorized([roles.ADMIN]),
+    asyncHandler(getDashboardStats)
+)
+
+// Add user
 adminRouter.post('/add-user',
     isAuthenticated(),
     isAuthorized([roles.ADMIN]),
     cloudupload().single('image'),
-    // isvalid(),
-        AddUser
-    
-
+    asyncHandler(AddUser)
 )
 
-
-
-//get user
+// Get all users
 adminRouter.get('/getUsers',
     isAuthenticated(),
     isAuthorized([roles.ADMIN]),
     asyncHandler(getAllUsers)
-
 )
 
-
-
-//get specific user by id
+// Get specific user by id
 adminRouter.get('/getSpecificUser/:userId',
     isAuthenticated(),
     isAuthorized([roles.ADMIN]),
     asyncHandler(getSpecificUser)
 )
 
-
-
-//update user
+// Update user
 adminRouter.put('/update/:userId',
     isAuthenticated(),
     isAuthorized([roles.ADMIN]),
@@ -47,9 +51,7 @@ adminRouter.put('/update/:userId',
     asyncHandler(updateUser)
 )
 
-
-
-//delete user via admin
+// Delete user
 adminRouter.delete('/delete/:userId',
     isAuthenticated(),
     isAuthorized([roles.ADMIN]),

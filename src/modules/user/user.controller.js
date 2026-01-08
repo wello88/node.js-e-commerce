@@ -44,7 +44,7 @@ export const getUserData = async (req, res, next) => {
 export const updateUser = async (req, res, next) => {
     // get data 
     const userId = req.authUser._id
-    const { userName, email, phone, address } = req.body
+    const { userName, email, phone, phoneNumber, address } = req.body
     // check user exist
     const user = await User.findById(userId)
     if (!user) {
@@ -87,7 +87,7 @@ export const updateUser = async (req, res, next) => {
         }
     }
     user.userName = userName || user.userName
-    user.phone = phone || user.phone
+    user.phoneNumber = phoneNumber || phone || user.phoneNumber
     if (address) {
         user.address = JSON.parse(address) || user.address
     }
