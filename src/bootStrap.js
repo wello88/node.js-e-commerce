@@ -10,9 +10,29 @@ dotenv.config({ path: path.resolve('./config/.env') })
 
 
 export const bootStrap = (app,express) => {
-    // CORS configuration
+    // CORS configuration - allow multiple origins
+    const allowedOrigins = [
+        'http://localhost:8081',
+        'http://localhost:5173',
+        'http://localhost:3000',
+        process.env.FRONTEND_URL,
+        // Add your Vercel frontend URLs here
+    ].filter(Boolean);
+
     app.use(cors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:8081',
+        origin: function(origin, callback) {
+            // Allow requests with no origin (mobile apps, curl, etc)
+            if (!origin) return callback(null, true);
+            
+            // Check if origin is in allowed list or matches vercel pattern
+            if (allowedOrigins.includes(origin) || 
+                origin.endsWith('.vercel.app') || 
+                origin.endsWith('.netlify.app')) {
+                return callback(null, true);
+            }
+            
+            callback(null, true); // Allow all for now - tighten in production
+        },
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization', 'token']
